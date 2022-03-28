@@ -1,11 +1,12 @@
-import pandas as pd
+import logging
 import pathlib
 
+import pandas as pd
+import pytz
 
-RAW_FOLDER = "./data/raw"
-INTERMEDIATE_FOLDER = "./data/intermediate"
+from load_config import *
 
-
+#logging.basicConfig(level=logging.INFO)
 
 def regulate_datetime_interval(dataframe,freq="1min",new_tz=None):
     """Reindexes datetime indexed dataframe to regular intervals and adapts timezone
@@ -31,12 +32,14 @@ def regulate_datetime_interval(dataframe,freq="1min",new_tz=None):
     # Get the first and last datetime
     first = dataframe.index.min()
     last = dataframe.index.max()
+    print(first,last)
     
     # Create regular datetimes
     dt = pd.date_range(first, last, freq=freq,tz=None)
+    print("new date_range :",len(dt))
 
     # Check if time zone is present and assigns to dt object if any
-    if dataframe.index.tz is not None:
+    if (dataframe.index.tz is not None) and (dataframe.index.tzinfo.zone!="UTC"):
         dt = dt.tz_localize(dataframe.index.tz)
     
     # Reindex dataframe
@@ -54,8 +57,12 @@ if __name__=="__main__":
         print(item)
         df = pd.read_pickle(item)
         print(df.shape)
-        df = regulate_datetime_interval(df)
-        print(df.shape)
-        df.to_pickle(pathlib.Path(INTERMEDIATE_FOLDER) / str(item.name))
 
+        print("freq:",YF_INTERVAL)
+        df = regulate_datetime_interval(df,freq=YF_INTERVAL)
+        print(df.shape)
+        if len(df):
+            df.to_pickle(pathlib.Path(INTERMEDIATE_FOLDER) / ("clean_"+str(item.name)))
+        else:
+            print("Empty dataframe")
         
