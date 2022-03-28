@@ -24,38 +24,8 @@ YF_INTERVAL = "1m" # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,
 USE_CACHED = True
 END_DAY = "2022-03-23"
 NB_DAYS = 7  # number of days to extract
-
-
-def download_history(ticker, start_date, end_date, interval, use_cached):
-    """Downloads history of a stock from yfinance
-
-    Parameters
-    ----------
-    ticker : str
-        ticker of the stock
-    start_date : str
-        start date of the history
-    end_date : str
-        end date of the history
-    interval : str
-        interval of the history
-    use_cached : bool
-        if True, the history is downloaded from yfinance cache, if False, it is downloaded from yfinance
-
-    Returns
-    -------
-    pd.DataFrame
-        history of the stocks
-    """
-    if use_cached:
-        df = yf.download(ticker, start=start_date, end=end_date, interval=interval)
-    else:
-        df = yf.download(ticker, start=start_date, end=end_date, interval=interval, group_by="ticker")
-    return df
-
-
-if __name__=="__main__":
-    symbols_mapping = {"Tesla":"TSLA",
+PARALLEL_DOWNLOAD = True
+SYMBOLS_MAPPING = {"Tesla":"TSLA",
                         "Pfizer":"PFE",
                         "Hermès":"RMS.PA",
                         "Toyota":"TM",
@@ -67,40 +37,102 @@ if __name__=="__main__":
                         "EDF":"EDF.PA",
                         "BTC-USD":"BTC-USD"}
 
-    data = {}
-    for key,val in symbols_mapping.items():
-        value = val
-        value_formatted = value.replace(".","p")
-        key_formatted = key.replace(" ","_")
-        print(value_formatted)
+def _download_history_to_pkl(symbols_list,
+                                start_date,
+                                end_date,
+                                interval="1min",
+                                use_cached=True,
+                                filepath=None):
+    """Downloads history of a single stock from yfinance and saves it to pickle file.
 
-        RAW_FOLDER = pathlib.Path(RAW_FOLDER)
-        storage_path = RAW_FOLDER / f"{key}_{value_formatted}_{NB_DAYS}d_{YF_INTERVAL}.pkl"
+    Parameters
+    ----------
+    symbols_list : str
+        Symbols list of strings of the stocks as expected by yfinance.
+    start_date : str or datetime.datetime
+        start date of the history.
+    end_date : str or datetime.datetime
+        end date of the history.
+    interval : str, optional
+        granularity of request, by default "1min"
+        Valid intervals are 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo
+    use_cached : bool, optional
+        If True then reads from filepath, by default True
+    filepath : str or pathlib.Path, optional
+        Location of data, by default None. If None then returns only dataframe.
 
-        if USE_CACHED and storage_path.exists(): # if USE_CACHED, then we read from pickle file.
-            tempdf = pd.read_pickle(storage_path)
-            print(key + " USed cached data")
-        
-        else:
-            
-            end_datetime = datetime.datetime.strptime(END_DAY, "%Y-%m-%d")
-            end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
-            end_datetime = end_datetime.replace(hour=23,minute=59,second=59)
+    Returns
+    -------
+    pandas.DataFrame
+        Output dataframe with history of the stock (Open, Low, High, Close, Adj Close, Volume)
+    """
 
-            start_datetime = end_datetime-datetime.timedelta(days=NB_DAYS)
+    if use_cached and pathlib.Path(filepath).exists():
+        tempdf = pd.read_pickle(filepath)
+        print(f"{symbols_list} Used cached data")
+    else:
+        tempdf = yf.download(symbols_list,
+                            start=start_date,
+                            end=end_date,
+                            interval=interval,
+                            group_by="ticker")
+        if len(tempdf):
+            print(f"{symbols_list} Shape : ",tempdf.shape)
+            tempdf.to_pickle(filepath)
+            print(f"{symbols_list} Downloaded")
+    return tempdf
+
+
+def download_stocks(symbols_dict, 
+                    interval : str = "1min",
+                    parallel : bool = True,
+                    target_folder=None):
+    
+    end_datetime = datetime.datetime.strptime(END_DAY, "%Y-%m-%d")
+    end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
+    end_datetime = end_datetime.replace(hour=23,minute=59,second=59)
+    start_datetime = end_datetime-datetime.timedelta(days=NB_DAYS)
+
+    target_path = pathlib.Path(target_folder)
+
+    if not parallel:
+        for key,val in symbols_dict.items():
+            value = val
+            value_formatted = value.replace(".","p")
+            print(value_formatted)
+
+            storage_path = target_path / f"{key}_{value_formatted}_{NB_DAYS}d_{interval}.pkl"
+
+            _download_history_to_pkl(value,
+                                        start_datetime,
+                                        end_datetime,
+                                        interval=YF_INTERVAL,
+                                        use_cached=USE_CACHED,
+                                        filepath=storage_path)
 
             print(f"Duration of requested extraction : {end_datetime-start_datetime}")
+    else:
+        # Parallel download
+        storage_path = target_path / f"all_tickers_{interval}.pkl"
+        
+        _download_history_to_pkl(symbols_list=list(symbols_dict.values()),
+                                start_date=start_datetime,
+                                end_date=end_datetime,
+                                interval=YF_INTERVAL,
+                                use_cached=False,
+                                filepath=storage_path)
+    
+    return 0
 
-            tempdf = yf.download(value,
-                                start=start_datetime,
-                                end=end_datetime,
-                                interval=YF_INTERVAL)
-            if len(tempdf):
-                print(key,"Shape : ",tempdf.shape)
-                
-                tempdf.to_pickle(storage_path)
-                data[key] = tempdf.copy(deep=True)
-                print(key + " Downloaded")
+        
+
+if __name__=="__main__":
+    _ = download_stocks(symbols_dict=SYMBOLS_MAPPING,
+                    interval = "1min",
+                    parallel = True,
+                    target_folder=RAW_FOLDER)
+
+    
 
         
     
