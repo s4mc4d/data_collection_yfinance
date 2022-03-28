@@ -1,2 +1,3 @@
-# data_collection_yfinance
-Jedha final project - data scraping part
+# Projet Final JEDHA
+
+Repo pour la phase exploratoire et démonstration de l'API yfinance chez Jedha.
