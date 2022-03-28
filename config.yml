@@ -1,0 +1,9 @@
+granularity: 1min
+values:
+  - AAPL
+  - GOOG
+  - ...
+  - 
+
+s3_bucket_name : dffdf
+s3_key : 
