@@ -18,24 +18,8 @@ import plotly.express as px
 import pytz
 from dateutil.parser import isoparse
 
-RAW_FOLDER = "./data/raw"
-# YF_PERIOD = "max"  #1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max (optional, default is '1mo')
-YF_INTERVAL = "1m" # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,3mo (optional, default is '1d')
-USE_CACHED = True
-END_DAY = "2022-03-23"
-NB_DAYS = 7  # number of days to extract
-PARALLEL_DOWNLOAD = True
-SYMBOLS_MAPPING = {"Tesla":"TSLA",
-                        "Pfizer":"PFE",
-                        "Hermès":"RMS.PA",
-                        "Toyota":"TM",
-                        "Tencent":"TCEHY",
-                        "Rio Tinto":"RIO",
-                        "Alphabet":"GOOGL",
-                        "BMW":"BMWYY",
-                        "Dassault Systèmes":"DSY.PA",
-                        "EDF":"EDF.PA",
-                        "BTC-USD":"BTC-USD"}
+# Loading all constants
+from load_config import *
 
 def _download_history_to_pkl(symbols_list,
                                 start_date,
@@ -127,6 +111,7 @@ def download_stocks(symbols_dict,
         
 
 if __name__=="__main__":
+    # Loads all raw symbols history and stores it to RAW_FOLDER
     _ = download_stocks(symbols_dict=SYMBOLS_MAPPING,
                     interval = "1min",
                     parallel = True,
