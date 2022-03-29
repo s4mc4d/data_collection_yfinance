@@ -1,5 +1,5 @@
-"""This program extracts list of stocks history from yfinance 
-    and saves it to pickle file.
+"""This program extracts list of stocks history from API 
+    and saves it to pickle files.
     Here are operations that are performed :
     1. Get list of stocks from a mapping dictionary
     2. Get history of each stock from yfinance
@@ -35,7 +35,7 @@ def _download_history_to_pkl(symbols_list,
                                 interval="1min",
                                 use_cached=True,
                                 filepath=None):
-    """Downloads history of a single stock from yfinance and saves it to pickle file.
+    """Downloads history of single or multiple stocks from yfinance and saves it to pickle file.
 
     Parameters
     ----------
@@ -116,7 +116,6 @@ def download_stocks(symbols_dict,
     
     return 0
 
-        
 
 if __name__=="__main__":
     # Loads all raw symbols history and stores it to RAW_FOLDER
