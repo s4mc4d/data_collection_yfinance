@@ -17,26 +17,7 @@ logging.basicConfig(
         format="%(asctime)s.%(msecs)03dZ %(name)s %(levelname)s %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S"
     )
-logging.getLogger().setLevel(logging.INFO)
-
-def get_timezone():
-    """Detects timezone from config file, otherwise uses UTC
-
-    Returns
-    -------
-    pytz.timezone
-        New time zone for dataframe
-    """
-    try:
-        tz = pytz.timezone(TIMEZONE_NEW_NAME)
-        logging.getLogger(__name__).debug("Converson of timezone succeeded.")
-    except pytz.exceptions.UnknownTimeZoneError:
-        tz = pytz.utc
-        logging.getLogger(__name__).debug(f"{TIMEZONE_NEW_NAME} is not a valid timezone. UTC is used instead")
-    except ValueError:
-        tz = pytz.utc
-        logging.getLogger(__name__).debug(f"TIMEZONE_NEW_NAME is not defined in config.yml. UTC is used instead")
-    return tz
+logging.getLogger().setLevel(logging.DEBUG)
 
 
 def regulate_datetime_interval(dataframe,freq="1min",new_tz=None):
@@ -66,17 +47,21 @@ def regulate_datetime_interval(dataframe,freq="1min",new_tz=None):
     
     # Create regular datetimes
     dt = pd.date_range(first, last, freq=freq,tz=None)
-    logging.getLogger(__name__).debug(f"New date_range : {len(dt)}")  
-    
-    # Check if time zone is present and assigns to dt object if any
-    if (dataframe.index.tz is not None) and (dataframe.index.tzinfo.zone!="UTC"):
-        dt = dt.tz_localize(dataframe.index.tz)
-    
-    # Reindex dataframe
-    newdf = dataframe.reindex(dt)
+    logging.getLogger(__name__).debug(f"New date_range : {len(dt)}")
 
-    if new_tz is not None:
-        newdf = newdf.tz_convert(new_tz)        
+    # Adjusts timezone
+    logging.getLogger(__name__).debug(f"tz : original is {dataframe.index.tz.zone}") 
+    logging.getLogger(__name__).debug(f"tz : new requested is {new_tz}")
+    
+    try:
+        dt = dt.tz_localize(new_tz)
+    except TypeError:
+        dt = dt.tz_convert(new_tz)
+        logging.getLogger(__name__).debug(f"tz : conversion from {dataframe.index.tz} to {new_tz} succeeded.")
+
+    logging.getLogger(__name__).debug(f"tz : Final is : {dt.tzinfo}")
+
+    newdf = dataframe.reindex(dt)
     
     return newdf
 
@@ -89,7 +74,7 @@ if __name__=="__main__":
         df = pd.read_pickle(item)
         
         logging.getLogger(__name__).debug(f"{df.shape}")
-        df = regulate_datetime_interval(df,freq="1min")
+        df = regulate_datetime_interval(df,freq="1min",new_tz=TIMEZONE_NEW_NAME)
         logging.getLogger(__name__).debug(f"{df.shape}")
         if len(df):
             df.to_pickle(pathlib.Path(INTERMEDIATE_FOLDER) / ("clean_"+str(item.name)))
