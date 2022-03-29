@@ -57,9 +57,8 @@ if __name__=="__main__":
         print(item)
         df = pd.read_pickle(item)
         print(df.shape)
-
-        print("freq:",YF_INTERVAL)
-        df = regulate_datetime_interval(df,freq=YF_INTERVAL)
+        
+        df = regulate_datetime_interval(df,freq="1min")
         print(df.shape)
         if len(df):
             df.to_pickle(pathlib.Path(INTERMEDIATE_FOLDER) / ("clean_"+str(item.name)))
