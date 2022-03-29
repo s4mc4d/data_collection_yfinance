@@ -3,23 +3,31 @@
     Here are operations that are performed :
     1. Get list of stocks from a mapping dictionary
     2. Get history of each stock from yfinance
-    3. Regularizes the Datetime Index
-    4. Changes the timezone to UTC
-    5. Save history to pickle file
+    3. Save history to pickle file
 """
 
-import pathlib
-import yfinance as yf
-import pandas as pd
-import numpy as np
 import datetime
+import logging
+import pathlib
+
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import plotly.express as px
 import pytz
+import yfinance as yf
 from dateutil.parser import isoparse
 
 # Loading all constants
 from load_config import *
+
+logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s.%(msecs)03dZ %(name)s %(levelname)s %(message)s",
+        datefmt="%Y-%m-%dT%H:%M:%S"
+    )
+logging.getLogger().setLevel(logging.INFO)
+
 
 def _download_history_to_pkl(symbols_list,
                                 start_date,

@@ -5,6 +5,7 @@ USE_CACHED : False
 END_DAY : "2022-03-23"  # ISO8601 format such as YYYY-MM-DD or YYYY-MM-DDTHH:mm:SS
 NB_DAYS : 7  # number of days to extract
 PARALLEL_DOWNLOAD : True
+TIMEZONE_NEW_NAME : UTC   # Give timezone according to pytz conventions. e.g. UTC
 symbols:
   Tesla: TSLA
   Pfizer: PFE
