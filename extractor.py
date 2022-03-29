@@ -76,12 +76,12 @@ def _download_history_to_pkl(symbols_list,
 
 
 def download_stocks(symbols_dict, 
-                    interval : str = "1min",
+                    # interval : str = "1min",
                     parallel : bool = True,
                     target_folder=None):
     
     end_datetime = datetime.datetime.strptime(END_DAY, "%Y-%m-%d")
-    end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
+    # end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
     end_datetime = end_datetime.replace(hour=23,minute=59,second=59)
     start_datetime = end_datetime-datetime.timedelta(days=NB_DAYS)
 
@@ -93,7 +93,7 @@ def download_stocks(symbols_dict,
             value_formatted = value.replace(".","p")
             print(value_formatted)
 
-            storage_path = target_path / f"{key}_{value_formatted}_{NB_DAYS}d_{interval}.pkl"
+            storage_path = target_path / f"{key}_{value_formatted}_{NB_DAYS}d_{YF_INTERVAL}.pkl"
 
             _download_history_to_pkl(value,
                                         start_datetime,
@@ -105,7 +105,7 @@ def download_stocks(symbols_dict,
             print(f"Duration of requested extraction : {end_datetime-start_datetime}")
     else:
         # Parallel download
-        storage_path = target_path / f"all_tickers_{interval}.pkl"
+        storage_path = target_path / f"all_tickers_{YF_INTERVAL}.pkl"
         
         _download_history_to_pkl(symbols_list=list(symbols_dict.values()),
                                 start_date=start_datetime,
@@ -120,7 +120,6 @@ def download_stocks(symbols_dict,
 if __name__=="__main__":
     # Loads all raw symbols history and stores it to RAW_FOLDER
     _ = download_stocks(symbols_dict=SYMBOLS_MAPPING,
-                    interval = "1min",
                     parallel = True,
                     target_folder=RAW_FOLDER)
 
