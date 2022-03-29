@@ -4,8 +4,12 @@ YF_INTERVAL : "1m" # valid intervals: 1m,2m,5m,15m,30m,60m,90m,1h,1d,5d,1wk,1mo,
 USE_CACHED : False
 END_DAY : "2022-03-23"  # ISO8601 format such as YYYY-MM-DD or YYYY-MM-DDTHH:mm:SS
 NB_DAYS : 7  # number of days to extract
-PARALLEL_DOWNLOAD : True
-TIMEZONE_NEW_NAME : UTC   # Give timezone according to pytz conventions. e.g. UTC
+PARALLEL_DOWNLOAD : True # If True, all data are gathered in same dataframe during download.
+
+# Provide timezone according to pytz conventions. e.g. "UTC" or "Europe/Paris"
+# Set to "null" to let as in original data
+TIMEZONE_NEW_NAME : UTC
+
 symbols:
   Tesla: TSLA
   Pfizer: PFE

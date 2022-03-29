@@ -13,4 +13,4 @@ with open("config.yml", 'r') as stream:
     SYMBOLS_MAPPING = data_loaded["symbols"]
     NB_DAYS = data_loaded.get(data_loaded["NB_DAYS"],7)  # number of days to extract up to END_DAY, default is 7
     PARALLEL_DOWNLOAD = data_loaded.get(data_loaded["PARALLEL_DOWNLOAD"],True)
-    TIMEZONE_NEW_NAME = data_loaded.get(data_loaded["TIMEZONE_NEW_NAME"],"UTC")
+    TIMEZONE_NEW_NAME = data_loaded["TIMEZONE_NEW_NAME"]
