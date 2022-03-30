@@ -1,8 +1,6 @@
 # Projet Final JEDHA
 
 Repo pour la phase exploratoire et démonstration de l'API yfinance chez Jedha.
-<<<<<<< HEAD
-=======
 
 
 ## Description
@@ -15,4 +13,3 @@ Repo pour la phase exploratoire et démonstration de l'API yfinance chez Jedha.
 - `transformer.py` : reads pkl files and cleans data. Stores results to INTERMEDIATE_FOLDER. Cleaning includes regularization of DateTimeIndex
   
     > python3 transformer.py -s pkl_file_path -t clean_pkl_file_path
->>>>>>> fff6598 (completed README explanations)
