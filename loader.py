@@ -42,38 +42,6 @@ class AwsS3Facade():  # TODO: create a class as a facade for easier uploads
         return True
 
 
-# def get_files_from_args(args_obj):
-#     if len(args_obj.path)==1:
-#         path = pathlib.Path(args_obj.path[0])
-#         logging.getLogger(__name__).debug(f"Input path : {path}")
-#         if not path.exists():
-#             logging.getLogger(__name__).error("The folder {} does not exist".format(path))
-#             sys.exit(1)
-#         elif path.is_dir():
-#             items_to_upload.extend(list(path.glob("**/*")))
-#             logging.getLogger(__name__).debug(f"{len(items_to_upload)} to upload")
-#         elif path.is_file():
-#             items_to_upload.append(path)
-#             logging.getLogger(__name__).debug(f"File {path} to upload")
-#     elif len(args_obj.path)>1:
-#         for path in args_obj.path:
-#             path = pathlib.Path(path)
-#             if not path.exists():
-#                 logging.getLogger(__name__).error("The file {} does not exist".format(path))
-#                 sys.exit(1)
-#             elif path.is_file():
-#                 items_to_upload.append(path)
-#                 logging.getLogger(__name__).debug(f"File {path} to upload")
-#             elif path.is_dir():
-#                 items_to_upload.extend(list(path.glob("**/*")))
-#                 logging.getLogger(__name__).debug(f"{len(items_to_upload)} to upload")
-#     else:
-#         path = pathlib.Path(INTERMEDIATE_FOLDER)
-#         items_to_upload.extend(list(path.glob("**/*")))
-#         if len(items_to_upload):
-#             logging.getLogger(__name__).debug(f"{len(items_to_upload)} to upload")
-
-
 parser = argparse.ArgumentParser(description='Upload files to AWS S3')
 parser.add_argument("-f","--files", help="Path to the files to upload."\
                             +"If not specified, nothing is uploaded.",
@@ -82,12 +50,12 @@ parser.add_argument("-f","--files", help="Path to the files to upload."\
                             type=str,
                             nargs="+")
 
-parser = argparse.ArgumentParser(description='Upload files to AWS S3')
-parser.add_argument("-y","--yaml", help="If specified, the content of folder INTERMEDIATE_FOLDER from yaml file is uploaded",
-                            default=[],
-                            # type=argparse.FileType('rb'),
-                            type=str,
-                            nargs="+")
+# parser = argparse.ArgumentParser(description='Upload files to AWS S3')
+# parser.add_argument("-y","--yaml", help="If specified, the content of folder INTERMEDIATE_FOLDER from yaml file is uploaded",
+#                             default=[],
+#                             # type=argparse.FileType('rb'),
+#                             type=str,
+#                             nargs="+")
 
 
 
