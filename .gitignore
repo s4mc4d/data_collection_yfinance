@@ -3,5 +3,6 @@ data
 .vscode
 *.pyc
 *.pyx
+*.pyo
 .DS_Store
 secrets*
