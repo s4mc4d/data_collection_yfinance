@@ -26,7 +26,7 @@ logging.basicConfig(
         format="%(asctime)s.%(msecs)03dZ %(name)s %(levelname)s %(message)s",
         datefmt="%Y-%m-%dT%H:%M:%S"
     )
-logging.getLogger().setLevel(logging.INFO)
+logging.getLogger(__name__).setLevel(logging.DEBUG)
 
 
 def _download_history_to_pkl(symbols_list,
@@ -59,19 +59,24 @@ def _download_history_to_pkl(symbols_list,
         Output dataframe with history of the stock (Open, Low, High, Close, Adj Close, Volume)
     """
 
+    logging_string = "/".join(symbols_list)
+
     if use_cached and pathlib.Path(filepath).exists():
         tempdf = pd.read_pickle(filepath)
-        print(f"{symbols_list} Used cached data")
+        logging.getLogger(__name__).debug(f"{logging_string} Used cached data")
     else:
         tempdf = yf.download(symbols_list,
                             start=start_date,
                             end=end_date,
                             interval=interval,
-                            group_by="ticker")
-        if len(tempdf):
-            print(f"{symbols_list} Shape : ",tempdf.shape)
+                            # group_by="columns"
+                            )
+        if not len(tempdf):
+            logging.getLogger(__name__).error(f"{logging_string} No data found")
+        else:
+            logging.getLogger(__name__).debug(f"{logging_string} Shape : {tempdf.shape}")
             tempdf.to_pickle(filepath)
-            print(f"{symbols_list} Downloaded")
+            logging.getLogger(__name__).debug(f"{logging_string} Downloaded")
     return tempdf
 
 
@@ -84,6 +89,7 @@ def download_stocks(symbols_dict,
     # end_datetime = end_datetime.replace(tzinfo=pytz.UTC)
     end_datetime = end_datetime.replace(hour=23,minute=59,second=59)
     start_datetime = end_datetime-datetime.timedelta(days=NB_DAYS)
+    logging.getLogger(__name__).debug(f"Understood {start_datetime} to {end_datetime}")
 
     target_path = pathlib.Path(target_folder)
 
@@ -102,7 +108,7 @@ def download_stocks(symbols_dict,
                                         use_cached=USE_CACHED,
                                         filepath=storage_path)
 
-            print(f"Duration of requested extraction : {end_datetime-start_datetime}")
+            logging.getLogger(__name__).info(f"Duration of requested extraction : {end_datetime-start_datetime}")
     else:
         # Parallel download
         storage_path = target_path / f"all_tickers_{YF_INTERVAL}.pkl"
